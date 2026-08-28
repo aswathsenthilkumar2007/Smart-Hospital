@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediFlow — Smart Hospital Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css?v=7.0" />
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+
+  <!-- ===================================================================== -->
+  <!-- PATIENT HEADER (shown only when role = patient) -->
+  <!-- ===================================================================== -->
+  <header id="patientHeaderNav" class="hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-sky-600 flex items-center justify-center text-white shadow-sm">
+            <i data-lucide="cross" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-base tracking-tight text-slate-900">MediFlow</span>
+            <p class="text-[10px] text-slate-500 font-medium -mt-0.5">Smart Hospital</p>
+          </div>
+        </div>
+
+        <!-- Patient Nav Links -->
+        <nav class="hidden md:flex items-center gap-1">
+          <button data-nav-target="patient-dashboard" class="text-xs font-bold text-sky-700 bg-sky-50 px-3 py-1.5 rounded-xl transition-all">Home</button>
+          <button data-nav-target="patient-intake" class="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-xl transition-all">AI Intake</button>
+          <button data-nav-target="patient-queue" class="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-xl transition-all">My Queue</button>
+          <button data-nav-target="patient-prescription" class="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-xl transition-all">My Prescription</button>
+          <button data-nav-target="patient-pharmacy" class="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-xl transition-all">Pharmacy</button>
+          <button data-nav-target="patient-support" class="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-xl transition-all">Medical Support</button>
+          <button data-nav-target="patient-profile" class="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-xl transition-all">My Profile</button>
+        </nav>
+
+        <!-- Patient User Badge + Logout -->
+        <div class="flex items-center gap-2">
+          <div id="headerUserBadge" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs"></div>
+          <button data-action-logout class="px-3 py-1.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-xs font-semibold flex items-center gap-1 transition-all">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- STAFF HEADER (shown only when role = staff) -->
+  <!-- ===================================================================== -->
+  <header id="staffHeaderNav" class="hidden sticky top-0 z-40 bg-indigo-950/95 backdrop-blur-md border-b border-indigo-900">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center text-white shadow-sm">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-base tracking-tight text-white">MediFlow Staff</span>
+            <p class="text-[10px] text-indigo-300 font-medium -mt-0.5">Clinical Operations</p>
+          </div>
+        </div>
+
+        <!-- Staff Nav Links -->
+        <nav class="hidden md:flex items-center gap-1">
+          <button data-nav-target="staff-overview" class="text-xs font-bold text-white bg-indigo-700 px-3 py-1.5 rounded-xl transition-all">Overview</button>
+          <button data-nav-target="staff-patients" class="text-xs font-semibold text-indigo-200 hover:text-white px-3 py-1.5 rounded-xl transition-all">Patients</button>
+          <button data-nav-target="staff-queues" class="text-xs font-semibold text-indigo-200 hover:text-white px-3 py-1.5 rounded-xl transition-all">Queue Mgmt</button>
+          <button data-nav-target="staff-support" class="text-xs font-semibold text-indigo-200 hover:text-white px-3 py-1.5 rounded-xl transition-all">Medical Support</button>
+          <button data-nav-target="staff-transfers" class="text-xs font-semibold text-indigo-200 hover:text-white px-3 py-1.5 rounded-xl transition-all">Transfers</button>
+          <button data-nav-target="staff-pharmacy" class="text-xs font-semibold text-indigo-200 hover:text-white px-3 py-1.5 rounded-xl transition-all">Pharmacy</button>
+          <button data-nav-target="staff-profile" class="text-xs font-semibold text-indigo-200 hover:text-white px-3 py-1.5 rounded-xl transition-all">My Profile</button>
+        </nav>
+
+        <!-- Staff User Badge + Logout -->
+        <div class="flex items-center gap-2">
+          <div id="headerUserBadgeStaff" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-800 border border-indigo-700 text-xs text-indigo-100"></div>
+          <button data-action-logout class="px-3 py-1.5 rounded-xl border border-indigo-700 text-indigo-200 hover:bg-indigo-800 text-xs font-semibold flex items-center gap-1 transition-all">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login-only header -->
+  <header id="loginOnlyHeader" class="hidden sticky top-0 z-40 bg-white border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-sky-600 flex items-center justify-center text-white">
+          <i data-lucide="cross" class="w-4 h-4"></i>
+        </div>
+        <span class="font-extrabold text-base text-slate-900">MediFlow</span>
+      </div>
+      <span class="text-xs font-semibold text-slate-500">Smart Hospital Management System</span>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN APP -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ================================================================== -->
+    <!-- VIEW: LOGIN -->
+    <!-- ================================================================== -->
+    <section id="view-login" class="app-view-container hidden max-w-md mx-auto py-6 space-y-6">
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-2xl bg-sky-600 text-white flex items-center justify-center mx-auto shadow-md">
+          <i data-lucide="cross" class="w-7 h-7"></i>
+        </div>
+        <h2 class="text-2xl font-black text-slate-900">🏥 MediFlow</h2>
+        <p class="text-xs text-slate-500">Smart Hospital Management System</p>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <!-- Sign In / Register Tabs -->
+        <div class="flex p-1 bg-slate-100 rounded-2xl gap-1">
+          <button id="authTabSignIn" type="button" class="flex-1 py-2.5 rounded-xl font-bold text-xs bg-white text-slate-900 shadow-sm transition-all">Sign In</button>
+          <button id="authTabRegister" type="button" class="flex-1 py-2.5 rounded-xl font-semibold text-xs text-slate-500 hover:text-slate-900 transition-all">Register</button>
+        </div>
+
+        <!-- Sign In Section -->
+        <div id="authSignInSection" class="space-y-4">
+          <!-- Role Selector -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 text-center">Login as</label>
+            <div class="flex p-1 bg-slate-100 rounded-2xl gap-1">
+              <button id="loginRolePatient" type="button" class="flex-1 py-2.5 rounded-xl font-bold text-xs bg-sky-600 text-white shadow-sm transition-all">🧑‍⚕️ Patient</button>
+              <button id="loginRoleStaff" type="button" class="flex-1 py-2.5 rounded-xl font-semibold text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">🏥 Staff / Doctor</button>
+            </div>
+          </div>
+
+          <form id="loginForm" class="space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email / Phone</label>
+              <input type="text" id="loginEmailInput" value="patient@mediflow.com" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
+              <input type="password" id="loginPasswordInput" value="patient123" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50" />
+            </div>
+            <button type="submit" class="w-full py-3.5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition-all">Sign In</button>
+          </form>
+
+          <!-- Quick Demo Logins -->
+          <div class="pt-3 border-t border-slate-100 space-y-2">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-center">Quick Demo Login</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="quickPatientLoginBtn" class="p-3 bg-sky-50 hover:bg-sky-100 rounded-xl border border-sky-200 text-left transition-all">
+                <span class="font-bold text-slate-800 block text-xs">Harish Karthic</span>
+                <span class="text-[10px] text-slate-500">patient@mediflow.com</span>
+                <span class="mt-1 block text-[10px] font-bold text-sky-600">→ Patient Portal</span>
+              </button>
+              <button id="quickStaffLoginBtn" class="p-3 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200 text-left transition-all">
+                <span class="font-bold text-slate-800 block text-xs">Dr. Priya</span>
+                <span class="text-[10px] text-slate-500">staff@mediflow.com</span>
+                <span class="mt-1 block text-[10px] font-bold text-indigo-600">→ Staff Portal</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Register Section -->
+        <div id="authRegisterSection" class="hidden space-y-3">
+          <form id="registerForm" class="space-y-3 text-xs">
+            <div>
+              <label class="block font-bold text-slate-700 uppercase mb-1">Full Name</label>
+              <input type="text" id="regNameInput" placeholder="Your full name" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 uppercase mb-1">Email Address</label>
+              <input type="email" id="regEmailInput" placeholder="you@example.com" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50" />
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block font-bold text-slate-700 uppercase mb-1">Phone</label>
+                <input type="text" id="regPhoneInput" placeholder="9876543210" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50" />
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 uppercase mb-1">Account Type</label>
+                <select id="regRoleSelect" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50">
+                  <option value="patient">Patient</option>
+                  <option value="staff">Staff / Doctor</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 uppercase mb-1">Password</label>
+              <input type="password" id="regPasswordInput" value="pass123" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50" />
+            </div>
+            <button type="submit" class="w-full py-3.5 mt-1 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all">Create Account & Sign In</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- PATIENT VIEWS (role=patient only) -->
+    <!-- ================================================================== -->
+
+    <!-- VIEW: PATIENT DASHBOARD -->
+    <section id="view-patient-dashboard" class="app-view-container hidden max-w-4xl mx-auto space-y-6">
+      <!-- Welcome Banner -->
+      <div class="bg-gradient-to-r from-sky-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-semibold text-sky-300 uppercase tracking-wider">Patient Portal</span>
+          <h2 id="patientWelcomeHeading" class="text-2xl sm:text-3xl font-black mt-1">Welcome</h2>
+          <p class="text-slate-300 text-xs mt-1">Patient ID: <strong id="patientWelcomeId" class="text-white font-mono"></strong></p>
+        </div>
+        <div id="patientStatusBadge" class="px-4 py-2 rounded-full text-xs font-bold bg-amber-100 text-amber-800 shadow-sm">
+          <span id="patientStatusText">🟢 Active Care Session</span>
+        </div>
+      </div>
+
+      <!-- My Info Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">My Token</span>
+          <div id="patientTokenDisplay" class="text-2xl font-black text-sky-700 font-mono"></div>
+          <span id="patientDeptDisplay" class="text-xs text-slate-500"></span>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Queue Position</span>
+          <div id="patientQueuePosDisplay" class="text-2xl font-black text-slate-900 font-mono"></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Estimated Wait</span>
+          <div id="patientWaitDisplay" class="text-2xl font-black text-slate-900 font-mono"></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Location</span>
+          <div id="patientLocationDisplay" class="text-xs font-bold text-slate-900 mt-2"></div>
+        </div>
+      </div>
+
+      <!-- Notifications + Quick Actions -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="md:col-span-2 bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-3">
+          <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <i data-lucide="bell" class="w-4 h-4 text-sky-600"></i> My Notifications
+          </h3>
+          <div id="patientNotificationsList" class="space-y-2"><!-- JS --></div>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-2.5">
+          <h3 class="font-bold text-slate-900 text-sm mb-2">Quick Actions</h3>
+          <button id="startIntakeBtn" class="w-full p-3 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-left text-xs transition-all flex items-center justify-between">
+            <span><strong class="block text-sky-900 font-bold">AI Symptom Intake</strong><span class="text-sky-700">Speak or type symptoms</span></span>
+            <i data-lucide="mic" class="w-4 h-4 text-sky-600"></i>
+          </button>
+          <button onclick="MediFlowApp.navigateToView('patient-prescription')" class="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left text-xs transition-all flex items-center justify-between">
+            <span><strong class="block font-bold">My Prescription</strong><span class="text-slate-500">View & manage medicines</span></span>
+            <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>
+          </button>
+          <button onclick="MediFlowApp.navigateToView('patient-pharmacy')" class="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left text-xs transition-all flex items-center justify-between">
+            <span><strong class="block font-bold">Pharmacy & Locker</strong><span class="text-slate-500">Pay & collect medicines</span></span>
+            <i data-lucide="package" class="w-4 h-4 text-slate-500"></i>
+          </button>
+          <button onclick="MediFlowApp.navigateToView('patient-support')" class="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left text-xs transition-all flex items-center justify-between">
+            <span><strong class="block font-bold">Medical Support</strong><span class="text-slate-500">My tests & requests</span></span>
+            <i data-lucide="activity" class="w-4 h-4 text-slate-500"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: PATIENT AI INTAKE -->
+    <section id="view-patient-intake" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div>
+        <button onclick="MediFlowApp.navigateToView('patient-dashboard')" class="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1 mb-3">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back to My Dashboard
+        </button>
+        <h2 class="text-2xl font-extrabold text-slate-900">AI Multilingual Voice Intake</h2>
+        <p class="text-slate-500 text-sm mt-1">Speak in English, Tamil, or Hindi. AI analyzes and triages your condition.</p>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        <!-- Language -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">1. Select Language</label>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="MediFlowApp.selectedLanguage='en-US'" class="px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white">🇺🇸 English</button>
+            <button onclick="MediFlowApp.selectedLanguage='ta-IN'" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">🇮🇳 தமிழ்</button>
+            <button onclick="MediFlowApp.selectedLanguage='hi-IN'" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200">🇮🇳 हिन्दी</button>
+          </div>
+        </div>
+
+        <!-- Mic -->
+        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center space-y-3">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">2. Speak Your Symptoms</label>
+          <button id="micRecordBtn" class="w-16 h-16 rounded-full bg-sky-600 text-white flex items-center justify-center shadow-lg shadow-sky-600/25 hover:bg-sky-700 transition-all mx-auto">
+            <i data-lucide="mic" class="w-6 h-6"></i>
+          </button>
+          <span id="micStatusText" class="text-xs font-semibold text-slate-500 block">Click to speak</span>
+          <div id="micErrorNotice" class="hidden"></div>
+        </div>
+
+        <!-- Text area -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">3. Or Type Symptoms</label>
+          <textarea id="symptomInput" rows="3" placeholder="e.g. I have severe chest pain and difficulty breathing since morning..." class="w-full p-4 rounded-2xl border border-slate-300 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+          <p id="symptomInputError" class="text-xs font-bold text-rose-600 mt-1 hidden"></p>
+        </div>
+
+        <button id="analyzeSymptomsBtn" class="w-full py-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all">
+          <i data-lucide="sparkles" class="w-5 h-5"></i> Analyze with AI Triage
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW: TRIAGE RESULT -->
+    <section id="view-patient-triage" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div id="emergencyWarningBanner" class="hidden p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-900">
+        <div class="flex items-start gap-3">
+          <i data-lucide="alert-triangle" class="w-6 h-6 text-rose-600 shrink-0"></i>
+          <div>
+            <h4 class="font-extrabold">🚨 URGENT — Immediate Medical Attention Required</h4>
+            <p class="text-xs mt-1">Please proceed immediately to Emergency Triage.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+          <div>
+            <span class="text-[11px] font-bold uppercase text-slate-400">AI Clinical Triage Result</span>
+            <h2 class="text-xl font-extrabold text-slate-900">Your Triage Assessment</h2>
+          </div>
+          <div id="triagePriorityBadge" class="px-3.5 py-1.5 rounded-full text-xs font-bold badge-p1"></div>
+        </div>
+        <div>
+          <span class="text-xs font-bold uppercase text-slate-400 block mb-2">Detected Symptoms</span>
+          <ul id="triageDetectedSymptomsList" class="space-y-1.5 bg-slate-50 p-4 rounded-2xl border border-slate-100"></ul>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-100">
+            <span class="text-[11px] font-bold uppercase text-sky-700 block mb-1">Recommended Dept.</span>
+            <strong id="triageRecommendedDept" class="text-sm text-slate-900"></strong>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+            <span class="text-[11px] font-bold uppercase text-slate-500 block mb-1">Est. Wait</span>
+            <strong id="triageWaitPreviewText" class="text-sm text-slate-900"></strong>
+          </div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-amber-700 shrink-0 mt-0.5"></i>
+          <p><strong>Medical Disclaimer:</strong> AI triage is an assistance tool and does not replace professional diagnosis.</p>
+        </div>
+        <div class="flex gap-3">
+          <button id="confirmTriageBtn" class="flex-1 py-3.5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition-all">Confirm & Get Queue Token</button>
+          <button onclick="MediFlowApp.navigateToView('patient-intake')" class="px-5 py-3.5 rounded-2xl border border-slate-300 text-slate-700 font-semibold text-xs">Edit</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: PATIENT QUEUE (read-only for patient) -->
+    <section id="view-patient-queue" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">My Queue Status</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Your real-time position and estimated wait.</p>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+          <div>
+            <span class="text-xs font-bold uppercase text-slate-400">Your Token</span>
+            <div id="queueTokenDisplay" class="text-4xl font-black text-sky-700 font-mono"></div>
+          </div>
+          <div class="text-right">
+            <span class="px-3 py-1 rounded-full text-xs font-bold badge-p1">Priority Active</span>
+            <p id="queueDeptDisplay" class="text-xs text-slate-500 mt-1"></p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <span class="text-[10px] text-slate-400 uppercase font-bold">My Position</span>
+            <div id="queuePosDisplay" class="text-2xl font-black text-slate-900 font-mono"></div>
+          </div>
+          <div class="p-3 bg-sky-50 rounded-2xl border border-sky-100">
+            <span class="text-[10px] text-sky-700 uppercase font-bold">Est. Wait</span>
+            <div id="queueWaitDisplay" class="text-2xl font-black text-sky-900 font-mono"></div>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+            <span class="text-[10px] text-slate-400 uppercase font-bold">Doctor</span>
+            <div id="queueDoctorDisplay" class="text-xs font-bold text-slate-800 mt-2"></div>
+          </div>
+        </div>
+        <!-- DEMO: Enter Consultation -->
+        <button onclick="MediFlowApp.navigateToView('patient-consultation')" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm">
+          <i data-lucide="stethoscope" class="w-4 h-4"></i> Enter Doctor Consultation Room (Demo)
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW: DOCTOR CONSULTATION -->
+    <section id="view-patient-consultation" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div class="bg-gradient-to-r from-slate-900 to-sky-950 text-white rounded-3xl p-6 shadow-sm">
+        <span class="text-xs text-sky-300 font-semibold uppercase">Consultation Suite</span>
+        <h2 class="text-2xl font-black mt-1">Doctor Consultation</h2>
+        <p class="text-slate-300 text-xs mt-1">Attending: <strong id="consultDoctorName" class="text-white"></strong></p>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-700 space-y-2">
+          <p><strong>Patient:</strong> <span id="consultPatientName"></span></p>
+          <p><strong>Clinical Notes:</strong> Physical exam completed. Vitals stable. Supportive medications formulated.</p>
+        </div>
+        <button id="completeConsultationBtn" class="w-full py-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all">
+          <i data-lucide="file-check" class="w-5 h-5"></i> Complete & Issue Digital Prescription
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW: MY PRESCRIPTION (patient sees only theirs) -->
+    <section id="view-patient-prescription" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900">My Digital Prescription</h2>
+          <p class="text-slate-500 text-xs mt-0.5">Prescription <strong id="rxIdDisplay" class="font-mono text-slate-800"></strong></p>
+        </div>
+        <div id="rxStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">✓ Active</div>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-300 p-6 sm:p-8 shadow-sm space-y-5">
+        <div class="flex justify-between pb-4 border-b-2 border-slate-200">
+          <div>
+            <h3 id="rxDoctorName" class="text-base font-black text-slate-900"></h3>
+            <p id="rxDoctorDept" class="text-xs text-slate-500"></p>
+          </div>
+          <div id="rxDate" class="text-xs font-mono font-bold text-slate-700"></div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+          Patient: <strong id="rxPatientName"></strong> (ID: <span id="rxPatientId" class="font-mono"></span>) • Diagnosis: <strong id="rxDiagnosis"></strong>
+        </div>
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-2">Prescribed Medicines</span>
+          <div id="rxMedicinesList" class="space-y-2"></div>
+        </div>
+        <button onclick="MediFlowApp.navigateToView('patient-pharmacy')" class="w-full py-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i> Proceed to Pharmacy
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW: PHARMACY (patient 3-option) -->
+    <section id="view-patient-pharmacy" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">My Pharmacy Order</h2>
+        <p class="text-slate-500 text-xs mt-0.5">Rx <strong id="pharmacyOrderRxId" class="font-mono text-slate-700"></strong> for <strong id="pharmacyOrderPatientName" class="text-slate-800"></strong></p>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <table class="w-full text-left text-xs">
+          <thead><tr class="border-b border-slate-200 text-[10px] font-bold uppercase text-slate-400"><th class="pb-2">Medicine</th><th class="pb-2 text-center">Qty</th><th class="pb-2 text-right">Price</th></tr></thead>
+          <tbody>
+            <tr class="border-b border-slate-100"><td class="py-2.5 font-semibold text-slate-800">Paracetamol 500mg</td><td class="text-center font-mono">10</td><td class="text-right font-mono font-bold">₹30</td></tr>
+            <tr class="border-b border-slate-100"><td class="py-2.5 font-semibold text-slate-800">Cetirizine 10mg</td><td class="text-center font-mono">5</td><td class="text-right font-mono font-bold">₹25</td></tr>
+          </tbody>
+        </table>
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+          <div class="flex justify-between text-slate-600"><span>Medicine Total</span><span class="font-mono">₹55</span></div>
+          <div class="flex justify-between text-slate-600"><span>Service Fee</span><span class="font-mono">₹5</span></div>
+          <div class="flex justify-between font-bold text-sm text-slate-900 pt-1.5 border-t border-slate-200"><span>Total</span><span class="font-mono text-sky-700">₹60</span></div>
+        </div>
+        <!-- 3 Payment Options -->
+        <div class="space-y-2.5">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Select Payment Option:</label>
+          <div id="payOptionOnline" data-payment-choice="online" class="payment-option-card selected p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-5 h-5 rounded-full border-2 border-sky-600 flex items-center justify-center"><span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span></div>
+              <div><strong class="text-sm font-bold text-slate-900 block">💳 Pay Online (Instant)</strong><span class="text-xs text-slate-500">Payment → Locker auto-staged</span></div>
+            </div>
+            <span class="font-mono font-bold text-xs">₹60</span>
+          </div>
+          <div id="payOptionCash" data-payment-choice="cash" class="payment-option-card p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center"></div>
+              <div><strong class="text-sm font-bold text-slate-900 block">💵 Pay by Cash at Counter</strong><span class="text-xs text-slate-500">Staff confirms → locker staged</span></div>
+            </div>
+            <span class="font-mono font-bold text-xs">₹60</span>
+          </div>
+          <div id="payOptionDecline" data-payment-choice="decline" class="payment-option-card p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center"></div>
+              <div><strong class="text-sm font-bold text-slate-900 block">🚫 I Don't Need These Medicines</strong><span class="text-xs text-slate-500">Prescription saved, buy elsewhere</span></div>
+            </div>
+            <span class="text-xs font-bold text-slate-400">No Cost</span>
+          </div>
+        </div>
+        <button id="proceedPharmacyOptionBtn" class="w-full py-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition-all">Continue with Selected Option</button>
+      </div>
+    </section>
+
+    <!-- VIEW: PHARMACY STATUS -->
+    <section id="view-patient-pharmacy-status" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <h2 class="text-2xl font-extrabold text-slate-900">My Pharmacy Status</h2>
+
+      <!-- Decline Box -->
+      <div id="declinedPharmacyNoticeBox" class="hidden p-6 bg-amber-50 rounded-3xl border-2 border-amber-300 text-amber-950 space-y-3">
+        <div class="flex items-center gap-2 font-bold text-sm"><i data-lucide="check-circle-2" class="w-5 h-5 text-amber-600"></i> Status: MEDICINES NOT REQUIRED</div>
+        <p class="text-xs leading-relaxed">Your prescription is saved with status <strong>"Medicines not purchased here"</strong>. Obtain medicines from any outside pharmacy.</p>
+        <button onclick="MediFlowApp.navigateToView('patient-prescription')" class="px-4 py-2 bg-amber-600 text-white rounded-xl font-bold text-xs">View My Prescription</button>
+      </div>
+
+      <!-- Active Timeline -->
+      <div id="pharmacyActiveTimelineContainer" class="space-y-5">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-100 text-xs">
+            <span class="font-bold text-slate-800">My Pharmacy Order</span>
+            <span id="statusPatientName" class="font-mono text-slate-600 font-bold"></span>
+          </div>
+          <div class="grid grid-cols-6 gap-1 text-center text-[10px] font-semibold text-slate-600">
+            <div class="p-2 bg-emerald-50 rounded-lg border border-emerald-200 text-emerald-800">✓ Received</div>
+            <div class="p-2 bg-emerald-50 rounded-lg border border-emerald-200 text-emerald-800">✓ Paid</div>
+            <div class="p-2 bg-sky-50 rounded-lg border border-sky-200 text-sky-800">● Preparing</div>
+            <div class="p-2 bg-slate-50 rounded-lg border border-slate-200">Locker</div>
+            <div class="p-2 bg-slate-50 rounded-lg border border-slate-200">Ready</div>
+            <div class="p-2 bg-slate-50 rounded-lg border border-slate-200">Collected</div>
+          </div>
+        </div>
+        <div id="cashPaymentPendingNotice" class="hidden p-5 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 text-xs space-y-1">
+          <h4 class="font-bold uppercase">🟡 Cash Payment Pending at Counter</h4>
+          <p>Please pay <strong>₹60</strong> at the pharmacy counter. Staff will confirm and stage your locker.</p>
+        </div>
+        <!-- Ready Banner -->
+        <div id="medicineReadyLockerBanner" class="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl border-2 border-emerald-300 space-y-4">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-200 text-emerald-900">🟢 READY FOR PICKUP</span>
+          <h3 class="text-lg font-black text-emerald-950">Your Medicines Are Ready!</h3>
+          <div class="grid grid-cols-2 gap-3 text-center">
+            <div class="p-3 bg-white rounded-2xl border border-emerald-200">
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Locker Pod</span>
+              <div id="assignedLockerIdDisplay" class="text-2xl font-black text-slate-900 font-mono">B-07</div>
+            </div>
+            <div class="p-3 bg-white rounded-2xl border border-emerald-200">
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">My OTP</span>
+              <div id="assignedOtpDisplay" class="text-2xl font-black text-sky-700 font-mono tracking-widest"></div>
+            </div>
+          </div>
+          <button onclick="MediFlowApp.navigateToView('patient-locker')" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2">
+            <i data-lucide="unlock" class="w-4 h-4"></i> Open Smart Locker Pickup
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: SMART LOCKER PICKUP -->
+    <section id="view-patient-locker" class="app-view-container hidden max-w-xl mx-auto space-y-6">
+      <div class="text-center">
+        <span class="text-xs font-bold text-sky-600 uppercase tracking-wider">Contactless Automated Dispensary</span>
+        <h2 class="text-2xl font-extrabold text-slate-900 mt-1">Smart Pharmacy Locker</h2>
+      </div>
+      <div class="bg-white rounded-3xl border-2 border-slate-300 p-6 sm:p-8 shadow-lg space-y-5">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+          <div>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Compartment</span>
+            <div id="lockerPodIdDisplay" class="text-2xl font-black font-mono text-slate-900">B-07</div>
+          </div>
+          <div class="text-right text-xs">
+            <span class="text-[10px] font-bold uppercase text-slate-400 block">My Account</span>
+            <div id="lockerPatientDisplay" class="font-bold text-slate-800"></div>
+          </div>
+        </div>
+        <!-- Locker Graphic -->
+        <div class="bg-slate-900 rounded-2xl p-5 text-center">
+          <div id="lockerDoorGraphic" class="locker-door-graphic bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl p-5 border border-slate-600 flex items-center justify-between">
+            <div class="text-left"><span class="text-[10px] uppercase font-bold text-slate-400">SMART LOCKER</span><div class="text-lg font-black font-mono text-white">SECURE POD</div></div>
+            <i data-lucide="lock" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+        </div>
+        <div id="lockerUnlockedSuccessBox" class="hidden"></div>
+        <!-- Auth Options -->
+        <div class="space-y-4">
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-2">
+            <span class="text-xs font-bold uppercase text-slate-600 block">Option 1: Scan My QR Code</span>
+            <button id="scanQrCodeBtn" class="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 mx-auto">
+              <i data-lucide="scan" class="w-3.5 h-3.5"></i> Simulate QR Scan
+            </button>
+          </div>
+          <div class="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">— OR —</div>
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold uppercase text-slate-600">Option 2: Enter My OTP</span>
+              <button id="autoFillOtpBtn" class="text-sky-600 font-bold hover:underline text-xs">Auto-Fill</button>
+            </div>
+            <input type="text" id="lockerOtpInput" maxlength="6" placeholder="• • • • • •" class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 px-4 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+            <button id="openLockerWithOtpBtn" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm">[ OPEN LOCKER ]</button>
+          </div>
+        </div>
+        <button id="confirmMedicineCollectedBtn" class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> I Have Collected My Medicines
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW: PATIENT MEDICAL SUPPORT (read-only — patient sees OWN requests only) -->
+    <section id="view-patient-support" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">My Medical Support</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Tests and medical services ordered by your care team for you.</p>
+      </div>
+      <div id="patientSupportRequestsList" class="space-y-3">
+        <!-- Populated by JS: filtered to currentUserId only -->
+      </div>
+    </section>
+
+    <!-- VIEW: PATIENT PROFILE (own info only) -->
+    <section id="view-patient-profile" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">My Patient Profile</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Edit your personal information. Changes reflect across your session.</p>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <div class="flex items-center gap-4 pb-4 border-b border-slate-100">
+          <div class="w-14 h-14 rounded-2xl bg-sky-100 border border-sky-200 flex items-center justify-center text-sky-600">
+            <i data-lucide="user" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-500 uppercase">Patient ID</div>
+            <div id="patientProfileIdDisplay" class="font-mono font-bold text-sky-700 text-sm"></div>
+            <div class="text-xs mt-1">Dept: <span id="patientProfileDeptDisplay" class="font-semibold text-slate-700"></span> • Status: <span id="patientProfileStatusDisplay" class="font-semibold"></span></div>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Full Name</label>
+            <input type="text" id="patientProfileNameInput" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Age</label>
+              <input type="number" id="patientProfileAgeInput" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Phone</label>
+              <input type="text" id="patientProfilePhoneInput" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email</label>
+            <input type="email" id="patientProfileEmailInput" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+          </div>
+        </div>
+        <button id="savePatientProfileBtn" class="w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white rounded-2xl font-bold text-sm shadow-md transition-all">Save Changes</button>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- STAFF VIEWS (role=staff only) -->
+    <!-- ================================================================== -->
+
+    <!-- VIEW: STAFF OVERVIEW DASHBOARD -->
+    <section id="view-staff-overview" class="app-view-container hidden max-w-5xl mx-auto space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <div>
+          <span class="text-xs font-bold uppercase text-indigo-600 tracking-wider">Staff Clinical Operations Portal</span>
+          <h2 id="staffOverviewGreeting" class="text-2xl font-black text-slate-900 mt-0.5"></h2>
+        </div>
+        <button onclick="MediFlowApp.navigateToView('staff-patients')" class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 shadow-sm">View All Patients →</button>
+      </div>
+
+      <!-- 6 KPI Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center"><span class="text-[10px] uppercase font-bold text-slate-400 block">Today's Patients</span><div id="kpiTodayPatients" class="text-2xl font-black text-slate-900 font-mono mt-1"></div></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center"><span class="text-[10px] uppercase font-bold text-slate-400 block">Waiting</span><div id="kpiWaitingPatients" class="text-2xl font-black text-amber-600 font-mono mt-1"></div></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center"><span class="text-[10px] uppercase font-bold text-slate-400 block">In Consult</span><div id="kpiConsultationPatients" class="text-2xl font-black text-sky-600 font-mono mt-1"></div></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center"><span class="text-[10px] uppercase font-bold text-slate-400 block">Completed</span><div id="kpiCompletedPatients" class="text-2xl font-black text-emerald-600 font-mono mt-1"></div></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center"><span class="text-[10px] uppercase font-bold text-slate-400 block">Support Req.</span><div id="kpiSupportRequests" class="text-2xl font-black text-indigo-600 font-mono mt-1"></div></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center"><span class="text-[10px] uppercase font-bold text-slate-400 block">Pending Transfers</span><div id="kpiPendingTransfers" class="text-2xl font-black text-slate-700 font-mono mt-1"></div></div>
+      </div>
+
+      <!-- Dept Queues Summary -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <h3 class="font-bold text-slate-900 text-sm">Live Department Queue Overview</h3>
+          <button onclick="MediFlowApp.navigateToView('staff-queues')" class="text-xs font-bold text-indigo-600 hover:underline">Manage →</button>
+        </div>
+        <div id="staffQueuesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- VIEW: STAFF PATIENTS DIRECTORY (STAFF ONLY) -->
+    <section id="view-staff-patients" class="app-view-container hidden max-w-5xl mx-auto space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900">Patients Directory</h2>
+          <p class="text-xs text-slate-500">Search, manage status, and initiate transfers.</p>
+        </div>
+        <div class="w-full sm:w-72">
+          <input type="text" id="staffPatientSearchInput" placeholder="Search by name, ID, token..." class="w-full px-4 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+        </div>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
+              <th class="pb-3">Patient Name</th><th class="pb-3">ID</th><th class="pb-3">Department</th><th class="pb-3">Status</th><th class="pb-3">Location</th><th class="pb-3">Availability</th><th class="pb-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="staffPatientsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VIEW: STAFF QUEUE MANAGEMENT -->
+    <section id="view-staff-queues" class="app-view-container hidden max-w-4xl mx-auto space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">Queue Management</h2>
+        <p class="text-xs text-slate-500">Call patients and manage department throughput.</p>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <h3 class="font-bold text-sm text-slate-900">Department Call Desks</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <strong class="font-bold text-slate-900 text-sm">Cardiology OPD (Room 203)</strong>
+              <span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded-full">Active Desk</span>
+            </div>
+            <p class="text-xs text-slate-600">Next: <strong id="cardioNextPatientText" class="text-slate-900"></strong></p>
+            <button id="staffCallCardioBtn" class="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700"></button>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <strong class="font-bold text-slate-900 text-sm">General Medicine (Room 105)</strong>
+              <span class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded-full">12 Waiting</span>
+            </div>
+            <p class="text-xs text-slate-600">Regular priority queue.</p>
+            <button onclick="MediFlowApp.handleStaffCallNext('General Medicine')" class="w-full py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800">Call Next General Patient</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: STAFF MEDICAL SUPPORT (STAFF ONLY) -->
+    <section id="view-staff-support" class="app-view-container hidden max-w-4xl mx-auto space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900">Medical Support Operations</h2>
+          <p class="text-xs text-slate-500">X-Ray, Lab, ECG, CT Scan, Patient Transport & Services.</p>
+        </div>
+        <button id="openCreateSupportModalBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="plus" class="w-4 h-4"></i> Create Request
+        </button>
+      </div>
+      <div id="staffSupportRequestsList" class="space-y-3"></div>
+    </section>
+
+    <!-- VIEW: STAFF TRANSFERS (STAFF ONLY) -->
+    <section id="view-staff-transfers" class="app-view-container hidden max-w-4xl mx-auto space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">Patient Transfers</h2>
+        <p class="text-xs text-slate-500">Manage department-to-department patient transfers.</p>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
+              <th class="pb-3">Transfer ID</th><th class="pb-3">Patient</th><th class="pb-3">From</th><th class="pb-3">To</th><th class="pb-3">Authorized By</th><th class="pb-3">Status</th>
+            </tr>
+          </thead>
+          <tbody id="staffTransfersTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VIEW: STAFF PHARMACY (STAFF ONLY - management view) -->
+    <section id="view-staff-pharmacy" class="app-view-container hidden max-w-5xl mx-auto space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">Pharmacy Management</h2>
+        <p class="text-xs text-slate-500">Manage orders, confirm payments, assign lockers.</p>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm overflow-x-auto">
+        <h3 class="font-bold text-sm text-slate-900 mb-4">All Pharmacy Orders</h3>
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
+              <th class="pb-3">Order ID</th><th class="pb-3">Patient</th><th class="pb-3">Total</th><th class="pb-3">Payment</th><th class="pb-3">Status</th><th class="pb-3">Locker</th><th class="pb-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="staffPharmacyOrdersTableBody"></tbody>
+        </table>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+        <h3 class="font-bold text-sm text-slate-900 mb-4">Smart Locker Bay Status</h3>
+        <div id="staffLockerBayGrid" class="grid grid-cols-4 sm:grid-cols-8 gap-2"></div>
+      </div>
+    </section>
+
+    <!-- VIEW: STAFF PROFILE (own staff info only) -->
+    <section id="view-staff-profile" class="app-view-container hidden max-w-2xl mx-auto space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">My Staff Profile</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Edit your staff identity and department information.</p>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <div class="flex items-center gap-4 pb-4 border-b border-slate-100">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-600">
+            <i data-lucide="shield-check" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-500 uppercase">Staff ID</div>
+            <div id="staffProfileIdDisplay" class="font-mono font-bold text-indigo-700 text-sm"></div>
+            <div class="text-xs mt-1 text-slate-500">Authenticated Staff Account</div>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Staff Name</label>
+            <input type="text" id="staffProfileNameInput" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Department / Specialty</label>
+            <input type="text" id="staffProfileDeptInput" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Phone</label>
+              <input type="text" id="staffProfilePhoneInput" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email</label>
+              <input type="email" id="staffProfileEmailInput" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+          </div>
+        </div>
+        <button id="saveStaffProfileBtn" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm shadow-md transition-all">Save Changes</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- MODALS -->
+  <!-- ===================================================================== -->
+
+  <!-- Access Denied Modal -->
+  <div id="accessDeniedModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-center">
+      <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+        <i data-lucide="shield-x" class="w-7 h-7"></i>
+      </div>
+      <h4 class="font-extrabold text-slate-900 text-lg">🔒 Access Denied</h4>
+      <p id="accessDeniedMessage" class="text-xs text-slate-600 leading-relaxed"></p>
+      <button id="accessDeniedRedirectBtn" class="w-full py-3 rounded-2xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 transition-all"></button>
+    </div>
+  </div>
+
+  <!-- Decline Medicine Modal -->
+  <div id="declineConfirmationModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
+        <i data-lucide="help-circle" class="w-6 h-6"></i>
+      </div>
+      <div class="text-center space-y-1">
+        <h4 class="font-bold text-slate-900">Purchase Elsewhere?</h4>
+        <p class="text-xs text-slate-600">Your prescription will be saved, but no locker or OTP will be generated.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <button id="cancelDeclineModalBtn" class="py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-50">Go Back</button>
+        <button id="confirmDeclineMedicinesBtn" class="py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Online Payment Modal -->
+  <div id="onlinePaymentModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+        <h4 class="font-bold text-slate-900 text-sm">Demo Payment Gateway</h4>
+        <button id="closeOnlinePayModalBtn" class="text-slate-400 text-sm font-bold">✕</button>
+      </div>
+      <div class="text-center py-2">
+        <span class="text-xs text-slate-400">Total Payable</span>
+        <div class="text-3xl font-black text-slate-900 font-mono">₹60</div>
+      </div>
+      <button id="confirmOnlinePaymentBtn" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md">Confirm Demo Payment</button>
+    </div>
+  </div>
+
+  <!-- Staff Patient Detail Modal -->
+  <div id="staffPatientDetailModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5">
+      <div class="flex justify-between items-start pb-3 border-b border-slate-100">
+        <div>
+          <h4 id="detailPatientName" class="font-extrabold text-slate-900 text-base"></h4>
+          <p class="text-xs text-slate-500 mt-0.5">Dept: <span id="detailPatientDept"></span> • Location: <span id="detailPatientLocation"></span></p>
+        </div>
+        <button id="closePatientDetailModalBtn" class="text-slate-400 text-sm font-bold">✕</button>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-xs font-bold text-slate-700 uppercase">Update Status</label>
+        <div class="flex gap-2">
+          <select id="detailPatientStatusSelect" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
+            <option value="Waiting">Waiting</option>
+            <option value="Called">Called</option>
+            <option value="In Consultation">In Consultation</option>
+            <option value="Awaiting Test">Awaiting Test</option>
+            <option value="Awaiting Medical Support">Awaiting Medical Support</option>
+            <option value="Awaiting Transfer">Awaiting Transfer</option>
+            <option value="Ready for Discharge">Ready for Discharge</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <button id="detailSaveStatusBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700">Save</button>
+        </div>
+      </div>
+      <div class="space-y-2 pt-3 border-t border-slate-100">
+        <label class="block text-xs font-bold text-slate-700 uppercase">Transfer to Department</label>
+        <div class="flex gap-2">
+          <select id="detailTransferDeptSelect" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
+            <option value="Radiology">Radiology (X-Ray / CT)</option>
+            <option value="Emergency">Emergency Room</option>
+            <option value="Laboratory">Laboratory / Pathology</option>
+            <option value="Pharmacy">Central Pharmacy</option>
+            <option value="General Ward">Inpatient General Ward</option>
+            <option value="ICU">ICU</option>
+            <option value="Discharge">Discharge Lounge</option>
+          </select>
+          <button id="detailConfirmTransferBtn" class="px-4 py-2 bg-sky-600 text-white rounded-xl text-xs font-bold hover:bg-sky-700">Transfer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Medical Support Modal (STAFF ONLY) -->
+  <div id="createSupportModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+        <h4 class="font-bold text-slate-900 text-sm">Create Medical Support Request</h4>
+        <button id="closeCreateSupportModalBtn" class="text-slate-400 text-sm font-bold">✕</button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Select Patient</label>
+          <select id="supportPatientSelect" class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Service Type</label>
+          <select id="supportServiceSelect" class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50">
+            <option value="🩻 X-Ray">🩻 X-Ray</option>
+            <option value="🧪 Blood Test">🧪 Blood Test</option>
+            <option value="🫀 ECG">🫀 ECG</option>
+            <option value="🔬 CT Scan">🔬 CT Scan</option>
+            <option value="🩺 Ultrasound">🩺 Ultrasound</option>
+            <option value="🛏️ Wheelchair Escort">🛏️ Wheelchair</option>
+            <option value="🚑 Stretcher">🚑 Stretcher</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">From Department</label>
+            <input type="text" id="supportFromDeptInput" value="Cardiology OPD" class="w-full p-2 rounded-xl border border-slate-300 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">To Department</label>
+            <select id="supportToDeptSelect" class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50">
+              <option value="Radiology Department">Radiology</option>
+              <option value="Laboratory Wing">Laboratory</option>
+              <option value="Emergency Room">Emergency</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Priority</label>
+          <select id="supportPrioritySelect" class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50">
+            <option value="High">High</option>
+            <option value="Normal">Normal</option>
+            <option value="Emergency">Emergency</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Clinical Notes</label>
+          <input type="text" id="supportNotesInput" placeholder="Clinical justification..." class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50" />
+        </div>
+      </div>
+      <button id="submitCreateSupportBtn" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md">Create & Dispatch Request</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-slate-200 bg-white py-5">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <div class="flex items-center gap-2"><span class="font-bold text-slate-800">MediFlow</span> <span>• Smart Hospital Management System</span></div>
+      <p>Role-Based Access Control • Hackathon Demo Prototype</p>
+    </div>
+  </footer>
+
+  <script src="app.js?v=7.0"></script>
+</body>
+</html>
